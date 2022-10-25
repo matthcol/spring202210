@@ -28,6 +28,11 @@ create table play(
 	constraint pk_play primary key(movie_id, actor_id)
 );
 
+create table have_genre(
+	movie_id int not null,
+	genre varchar(20) not null
+);
+
 alter table movies add constraint fk_movies_director 
 	FOREIGN KEY (director_id)
 	references persons(id);
@@ -37,5 +42,8 @@ alter table play add constraint FK_PLAY_MOVIE
 alter table play add constraint FK_PLAY_ACTOR 
 	FOREIGN KEY (actor_id)
 	references persons(id);
+alter table have_genre add constraint FK_HAVE_GENRE 
+	FOREIGN KEY (movie_id)
+	references movies(id);
 
 
