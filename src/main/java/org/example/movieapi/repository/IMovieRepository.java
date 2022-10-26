@@ -10,7 +10,7 @@ import javax.persistence.Tuple;
 import java.util.stream.Stream;
 
 // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation
-public interface IMovieRepository extends JpaRepository<Movie, Integer> {
+public interface IMovieRepository extends JpaRepository<Movie, Integer>, IMovieExtensionRepository {
 
     Stream<Movie> findByTitleIgnoringCase(String title);
 
