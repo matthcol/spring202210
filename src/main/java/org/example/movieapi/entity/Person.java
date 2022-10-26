@@ -21,9 +21,10 @@ public class Person {
 
     @Id
     // @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @GeneratedValue(generator = "seq_person_id") //strategy = GenerationType.SEQUENCE,
-    @SequenceGenerator(name = "seq_person_id",
-            sequenceName = "seq_person_id")
+    @GeneratedValue(generator = "seq_persons_id") //strategy = GenerationType.SEQUENCE,
+    @SequenceGenerator(name = "seq_persons_id",
+            sequenceName = "seq_persons_id",
+            allocationSize = 1)
     private Integer id;
 
     @NonNull // RequiredArgsConstructor

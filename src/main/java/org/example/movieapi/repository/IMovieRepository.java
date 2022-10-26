@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Tuple;
+import java.util.List;
 import java.util.stream.Stream;
 
 // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation
@@ -63,4 +64,9 @@ public interface IMovieRepository extends JpaRepository<Movie, Integer>, IMovieE
     Stream<IDirectorStatDto> getStatByDirectorBorn2(int birthyear);
 
 
+    List<Movie> findByYearBetween(Short year1, Short year2);
+
+    List<Movie> findByTitleIgnoringCaseAndYearBetween(String title, Short year1, Short year2);
+
+    List<Movie> findByActorsNameEndingWithIgnoreCase(String actorName);
 }
