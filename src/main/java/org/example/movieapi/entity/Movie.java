@@ -3,6 +3,8 @@ package org.example.movieapi.entity;
 import org.example.movieapi.enums.ColorEnum;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,9 +50,10 @@ public class Movie {
 
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @GeneratedValue(generator = "seq_movie_id") //strategy = GenerationType.SEQUENCE,
-    @SequenceGenerator(name = "seq_movie_id",
-        sequenceName = "seq_movie_id")
+    @GeneratedValue(generator = "seq_movies_id") //strategy = GenerationType.SEQUENCE,
+    @SequenceGenerator(name = "seq_movies_id",
+        sequenceName = "seq_movies_id",
+        allocationSize = 1)
     public Integer getId() {
         return id;
     }
@@ -59,6 +62,7 @@ public class Movie {
         this.id = id;
     }
 
+    @NotBlank
     @Column(length = 300, nullable = false)
     public String getTitle() {
         return title;
@@ -68,6 +72,7 @@ public class Movie {
         this.title = title;
     }
 
+    @Min(1850)
     // NB: with primitive type, NOT NULL implicit
     @Column(nullable = false)
     public short getYear() {
@@ -78,6 +83,7 @@ public class Movie {
         this.year = year;
     }
 
+    @Min(45)
     // @Transient // debug purpose
     // @Column(nullable = true) // default
     public Short getDuration() {
