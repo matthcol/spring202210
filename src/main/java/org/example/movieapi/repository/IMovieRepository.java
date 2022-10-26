@@ -5,11 +5,14 @@ import org.example.movieapi.entity.Movie;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.Tuple;
 import java.util.stream.Stream;
 
 // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation
+
+// @Repository // depending on DI for ths repositorys
 public interface IMovieRepository extends JpaRepository<Movie, Integer>, IMovieExtensionRepository {
 
     Stream<Movie> findByTitleIgnoringCase(String title);

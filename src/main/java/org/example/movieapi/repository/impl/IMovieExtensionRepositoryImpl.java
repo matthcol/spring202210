@@ -7,15 +7,15 @@ import org.example.movieapi.repository.IMovieExtensionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.JoinType;
 import java.util.stream.Stream;
 
-@Repository
-public class MovieExtensionRepositoryImpl implements IMovieExtensionRepository {
+public class IMovieExtensionRepositoryImpl implements IMovieExtensionRepository {
 
-    @Autowired
+    // @Autowired
+    @PersistenceContext
     EntityManager entityManager;
 
     @Override
