@@ -1,32 +1,56 @@
 package org.example.movieapi.entity;
 
+import org.example.movieapi.enums.ColorEnum;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+// Warning: table constarints with db names and not oop names
+@Table(
+        name="movies",
+        uniqueConstraints = @UniqueConstraint(
+            name = "uniq_title_year",
+            columnNames = {"title", "year"}))
 public class Movie {
     private Integer id;
     private String title;
     private short year;
     private Short duration;
+    private ColorEnum color;
+
+    private Set<String> genres;
+
+    private Person director;
+
+    private Set<Person> actors;
 
     public Movie() {
+        super();
+        actors = new HashSet<>();
     }
 
     public Movie(String title, short year) {
+        this();
         this.title = title;
         this.year = year;
     }
 
-    public Movie(Integer id, String title, short year, Short duration) {
+    public Movie(Integer id, String title, short year, Short duration, ColorEnum color) {
+        this();
         this.id = id;
         this.title = title;
         this.year = year;
         this.duration = duration;
+        this.color = color;
     }
 
     @Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "seq_movie_id") //strategy = GenerationType.SEQUENCE,
+    @SequenceGenerator(name = "seq_movie_id",
+        sequenceName = "seq_movie_id")
     public Integer getId() {
         return id;
     }
@@ -35,6 +59,7 @@ public class Movie {
         this.id = id;
     }
 
+    @Column(length = 300, nullable = false)
     public String getTitle() {
         return title;
     }
@@ -43,6 +68,8 @@ public class Movie {
         this.title = title;
     }
 
+    // NB: with primitive type, NOT NULL implicit
+    @Column(nullable = false)
     public short getYear() {
         return year;
     }
@@ -51,7 +78,8 @@ public class Movie {
         this.year = year;
     }
 
-    @Transient
+    // @Transient // debug purpose
+    // @Column(nullable = true) // default
     public Short getDuration() {
         return duration;
     }
@@ -60,13 +88,63 @@ public class Movie {
         this.duration = duration;
     }
 
+    // NB: you can use a converter here
+    @Enumerated(EnumType.STRING) // ORDINAL by default
+    public ColorEnum getColor() {
+        return color;
+    }
+
+    public void setColor(ColorEnum color) {
+        this.color = color;
+    }
+
+    @ElementCollection
+    @CollectionTable(name="have_genre",
+            joinColumns = @JoinColumn(name = "movie_id")
+    )
+    @Column(name="genre", nullable = false, length = 20)
+    public Set<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(Set<String> genres) {
+        this.genres = genres;
+    }
+
+    // @Transient
+    @ManyToOne //(fetch = FetchType.LAZY) // EAGER by default
+    // NB: tuning with @JoinColumn: name, nullable
+    public Person getDirector() {
+        return director;
+    }
+
+    public void setDirector(Person director) {
+        this.director = director;
+    }
+
+
+    @ManyToMany // fetch lazy
+    @JoinTable(name = "play",
+            joinColumns = @JoinColumn(name = "movie_id"), // to this entity
+            inverseJoinColumns = @JoinColumn(name = "actor_id") // to other entity
+    ) // check FK constraints
+    public Set<Person> getActors() {
+        return actors;
+    }
+
+    public void setActors(Set<Person> actors) {
+        this.actors = actors;
+    }
+
     @Override
     public String toString() {
-        return "Movie{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", year=" + year +
-                ", duration=" + duration +
-                '}';
+        final StringBuilder sb = new StringBuilder("Movie{");
+        sb.append("id=").append(id);
+        sb.append(", title='").append(title).append('\'');
+        sb.append(", year=").append(year);
+        sb.append(", duration=").append(duration);
+        sb.append(", color=").append(color);
+        sb.append('}');
+        return sb.toString();
     }
 }

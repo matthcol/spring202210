@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("testu")
-public class IMovieRepositoryDirectorTest {
+public class IMovieRepositoryDirectorActorsTest {
 
     @Autowired
     IMovieRepository movieRepository;
@@ -28,7 +29,7 @@ public class IMovieRepositoryDirectorTest {
     @Autowired
     TestEntityManager entityManager;
 
-    @Rollback(false)
+    // @Rollback(false)
     @Test
     void testSetDirector() {
         var movie = new Movie("Top Gun: Maverick", (short) 2022);
@@ -61,6 +62,41 @@ public class IMovieRepositoryDirectorTest {
         assertEquals(person.getId(), director.getId());
         assertEquals(person.getName(), director.getName());
     }
+
+    @Rollback(false)
+    @Test
+    void testActors() {
+        var movie = new Movie("Top Gun: Maverick", (short) 2022);
+        var tom = new Person("Tom Cruise");
+        var jen = new Person("Jennifer Connelly");
+        var val = new Person("Val Kilmer");
+        Stream.of(movie, tom, jen, val)
+                .forEach(entityManager::persist);
+        entityManager.flush();
+        entityManager.clear();
+
+        var movieRead = movieRepository.findById(movie.getId()).get();
+        var tomRead = personRepository.findById(tom.getId()).get();
+        var jenRead = personRepository.findById(jen.getId()).get();
+
+        movieRead.getActors().addAll(List.of(tomRead, jenRead));
+
+        movieRepository.flush();
+        entityManager.clear();
+
+        var movieReadAgain = movieRepository.findById(movie.getId()).get();
+        var valRead = personRepository.findById(val.getId()).get();
+
+        movieReadAgain.getActors().add(val);
+        movieRepository.flush();
+
+    }
+
+
+
+
+
+
 
 
 }

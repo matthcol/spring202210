@@ -33,6 +33,6 @@ class MovieTest {
         entityManager.flush();
 
         assertNotNull(movie.getId());
-    }
+    } // => Rollback
 
 }
