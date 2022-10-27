@@ -30,4 +30,10 @@ public interface IMovieService {
     Set<MovieDto> getByActor(String actorName);
 
     MovieDto addMovie(MovieDto movie);
+
+    Optional<MovieDetailDto> setDirector(int movieId, int directorId);
+
+    Optional<MovieDetailDto> setActors(int idMovie, List<Integer> idActors);
+
+    boolean deleteMovie(Integer idMovie);
 }

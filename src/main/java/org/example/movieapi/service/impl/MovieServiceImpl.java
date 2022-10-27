@@ -3,7 +3,9 @@ package org.example.movieapi.service.impl;
 import org.example.movieapi.dto.MovieDetailDto;
 import org.example.movieapi.dto.MovieDto;
 import org.example.movieapi.entity.Movie;
+import org.example.movieapi.entity.Person;
 import org.example.movieapi.repository.IMovieRepository;
+import org.example.movieapi.repository.IPersonRepository;
 import org.example.movieapi.service.IMovieService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class MovieServiceImpl implements IMovieService {
 
     @Autowired
     IMovieRepository movieRepository;
+
+    @Autowired
+    IPersonRepository personRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -122,37 +127,99 @@ public class MovieServiceImpl implements IMovieService {
 
     @Override
     public Set<MovieDto> getByTitle(String title) {
-        return null;
+        return movieRepository.findByTitleIgnoringCase(title)
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<MovieDto> getByTitleYear(String title, Short year) {
-        return null;
+        var movieExampleTitleYear = new Movie(title, year);
+        return movieRepository.findAll(Example.of(movieExampleTitleYear,
+                    ExampleMatcher.matching().withIgnoreCase("title")))
+                .stream()
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<MovieDto> getByTitleRangeYear(String title, Short year1, Short year2) {
-        return null;
+        return movieRepository.findByTitleIgnoringCaseAndYearBetween(title, year1, year2)
+                .stream()
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<MovieDto> getByRangeYear(Short year1, Short year2) {
-        return null;
+        return movieRepository.findByYearBetween(year1, year2)
+                .stream()
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<MovieDto> getByYear(Short year) {
-        return null;
+        var movieExampleYear = new Movie(null, year);
+        return movieRepository.findAll(Example.of(movieExampleYear))
+                .stream()
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .collect(Collectors.toSet());
     }
 
 
     @Override
     public Set<MovieDto> getByActor(String actorName) {
-        return null;
+        return movieRepository.findByActorsNameEndingWithIgnoreCase(actorName)
+                .stream()
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public MovieDto addMovie(MovieDto movie) {
-        return null;
+    public MovieDto addMovie(MovieDto movieDto) {
+        var movieEntity = modelMapper.map(movieDto, Movie.class);
+        movieRepository.saveAndFlush(movieEntity);
+        return modelMapper.map(movieEntity, MovieDto.class);
+    } // commit
+
+    @Override
+    public Optional<MovieDetailDto> setDirector(int movieId, int directorId) {
+        var movieEntityOpt = movieRepository.findById(movieId);
+        var directorEntityOpt = personRepository.findById(directorId);
+        return movieEntityOpt.flatMap(
+                me -> directorEntityOpt.map(
+                        de -> {
+                            me.setDirector(de);  // SQL: update
+                            return modelMapper.map(me, MovieDetailDto.class);
+                        }
+                )
+        );
     }
+
+    @Override
+    public Optional<MovieDetailDto> setActors(int idMovie, List<Integer> idActors) {
+        return movieRepository.findById(idMovie) // fetch movie
+                .map(me -> {
+                    // fetch actors
+                    var actorEntities = personRepository.findAllById(idActors);
+                    if (actorEntities.size() !=  idActors.size()) {
+                        // cancel update
+                        return null;
+                    }
+                    me.getActors().clear();;
+                    me.getActors().addAll(actorEntities);
+                    return modelMapper.map(me, MovieDetailDto.class);
+                });
+    }
+
+    @Override
+    public boolean deleteMovie(Integer idMovie) {
+        // movieRepository.deleteById(idMovie);
+        return movieRepository.findById(idMovie)
+                .map(me -> {
+                    movieRepository.delete(me);
+                    return true;
+                }).orElse(false);
+    } // commit
 }

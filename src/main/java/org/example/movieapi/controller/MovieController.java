@@ -2,6 +2,7 @@ package org.example.movieapi.controller;
 
 import org.example.movieapi.dto.MovieDetailDto;
 import org.example.movieapi.dto.MovieDto;
+import org.example.movieapi.exception.NoDataFound;
 import org.example.movieapi.service.IMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -93,6 +94,31 @@ public class MovieController {
     @ResponseStatus(HttpStatus.CREATED)
     public MovieDto addMovie(@RequestBody @Valid MovieDto movie){
         return movieService.addMovie(movie);
+    }
+
+    @PatchMapping("/{mid}/director")
+    public Optional<MovieDetailDto> setDirector(
+            @PathVariable("mid") int movieId,
+            @RequestParam("did") int directorId
+    ) {
+        return movieService.setDirector(movieId, directorId);
+    }
+
+    @PatchMapping("/{mid}/actors")
+    public Optional<MovieDetailDto> setActors(
+            @PathVariable("mid") int movieId,
+            @RequestBody List<Integer> actorsId
+    ) {
+        var res =  movieService.setActors(movieId, actorsId);
+        return res;
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMovie(@PathVariable("id") Integer idMovie) {
+        if (!movieService.deleteMovie(idMovie)){
+            throw new NoDataFound("Movie not found with this id: " + idMovie);
+        }
     }
 
 }

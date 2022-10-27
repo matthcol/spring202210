@@ -1,6 +1,9 @@
 package org.example.movieapi.entity;
 
+import org.example.movieapi.entity.converter.EmptyStringConverter;
 import org.example.movieapi.enums.ColorEnum;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -15,6 +18,8 @@ import java.util.Set;
         uniqueConstraints = @UniqueConstraint(
             name = "uniq_title_year",
             columnNames = {"title", "year"}))
+@NamedEntityGraph(name="Movie.simple",attributeNodes = @NamedAttributeNode("genres"))
+@NamedEntityGraph(name="Movie.detail", includeAllAttributes = true)
 public class Movie {
     private Integer id;
     private String title;
@@ -63,7 +68,8 @@ public class Movie {
         this.id = id;
     }
 
-    @NotBlank
+
+    @Convert(converter = EmptyStringConverter.class)
     @Column(length = 300, nullable = false)
     public String getTitle() {
         return title;
@@ -73,7 +79,7 @@ public class Movie {
         this.title = title;
     }
 
-    @Min(1850)
+
     // NB: with primitive type, NOT NULL implicit
     @Column(nullable = false)
     public short getYear() {
@@ -84,7 +90,7 @@ public class Movie {
         this.year = year;
     }
 
-    @Min(45)
+
     // @Transient // debug purpose
     // @Column(nullable = true) // default
     public Short getDuration() {
@@ -138,7 +144,8 @@ public class Movie {
     }
 
 
-    @ManyToMany // fetch lazy
+    @ManyToMany(cascade = {}) // fetch lazy // TODO: avoid cascade DELETE
+    // @OnDelete(action = OnDeleteAction.NO_ACTION) // Code First
     @JoinTable(name = "play",
             joinColumns = @JoinColumn(name = "movie_id"), // to this entity
             inverseJoinColumns = @JoinColumn(name = "actor_id") // to other entity

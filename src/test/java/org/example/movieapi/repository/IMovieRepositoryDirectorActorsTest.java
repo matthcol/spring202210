@@ -63,7 +63,7 @@ public class IMovieRepositoryDirectorActorsTest {
         assertEquals(person.getName(), director.getName());
     }
 
-    @Rollback(false)
+    // @Rollback(false)
     @Test
     void testActors() {
         var movie = new Movie("Top Gun: Maverick", (short) 2022);
