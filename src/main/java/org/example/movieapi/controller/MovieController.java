@@ -1,21 +1,16 @@
 package org.example.movieapi.controller;
 
-import org.example.movieapi.entity.Movie;
-import org.example.movieapi.repository.IMovieRepository;
+import org.example.movieapi.dto.MovieDetailDto;
+import org.example.movieapi.dto.MovieDto;
+import org.example.movieapi.service.IMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Transactional
 @RestController
@@ -23,37 +18,35 @@ import java.util.stream.Stream;
 public class MovieController {
 
     @Autowired
-    IMovieRepository movieRepository;
+    IMovieService movieService;
 
     @GetMapping
-    public List<Movie> getAll() {
+    public List<MovieDto> getAll() {
 //        return Stream.of(
 //                new Movie("Top Gun", (short) 1986),
 //                new Movie("Top Gun: Maverick", (short) 2022)
 //        );
-        return movieRepository.findAll();
+        return movieService.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getById(@PathVariable int id) {
+    public ResponseEntity<MovieDetailDto> getById(@PathVariable int id) {
 //        var movie = new Movie("Top Gun: Maverick", (short) 2022);
 //        movie.setId(id);
 //        return movie;
-        var movieOpt = movieRepository.findById(id);
-        return movieOpt.map(ResponseEntity::ok)
-                 .orElseGet(() -> ResponseEntity.notFound().build());
+        return movieService.getById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/byTitle")
-    public Set<Movie> getByTitle(@RequestParam("t") String title){
-        return  movieRepository.findByTitleIgnoringCase(title)
-               // .collect(Collectors.toCollection(HashSet::new));
-                .collect(Collectors.toSet());
+    public Set<MovieDto> getByTitle(@RequestParam("t") String title){
+        return  movieService.getByTitle(title);
     }
 
     // @RequestParam can tuned with name, required and defaultValue
     @GetMapping("/search")
-    public List<Movie> getByTitleOrYear(
+    public Set<MovieDto> getByTitleOrYear(
             @RequestParam(name = "t", required = false) String title,
             @RequestParam(name = "y", required = false) Short year1,
             @RequestParam(name = "y2", required = false) Short year2)
@@ -63,44 +56,41 @@ public class MovieController {
                 && Objects.isNull(year2)
         ) {
             // find by title only
-            return movieRepository.findByTitleIgnoringCase(title).toList();
+            return movieService.getByTitle(title);
         } else if (Objects.nonNull(year1)
                 && Objects.isNull(year2)
         ) {
             // find by title year (title can be null)
-            var movieExampleTitleYear = new Movie(title, year1);
-            return movieRepository.findAll(Example.of(movieExampleTitleYear,
-                    ExampleMatcher.matching().withIgnoreCase("title")));
+            return movieService.getByTitleYear(title, year1);
 
         } else if (Objects.isNull(title)
                 && Objects.nonNull(year1)
                 && Objects.nonNull(year2)
         ) {
             // find by range year
-            return movieRepository.findByYearBetween(year1, year2);
+            return movieService.getByRangeYear(year1, year2);
         } else if (Objects.nonNull(title)
                 && Objects.nonNull(year1)
                 && Objects.nonNull(year1)
         ) {
             // find by title and range year
-            return movieRepository.findByTitleIgnoringCaseAndYearBetween(title, year1, year2);
+            return movieService.getByTitleRangeYear(title, year1, year2);
         } else {
             // no criteria : too wide => error or empty list
-            return List.of();
+            return Set.of();
         }
     }
 
     @GetMapping("/byActor")
-    public List<Movie> getByActor(@RequestParam("n") String actorName) {
-        return movieRepository.findByActorsNameEndingWithIgnoreCase(actorName);
+    public Set<MovieDto> getByActor(@RequestParam("n") String actorName) {
+        return movieService.getByActor(actorName);
     }
 
     // @Valid not mandatory if spring-boot-starter-validation by default
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Movie addMovie(@RequestBody @Valid Movie movie){
-        return movieRepository.save(movie);
+    public MovieDto addMovie(@RequestBody @Valid MovieDto movie){
+        return movieService.addMovie(movie);
     }
-
 
 }

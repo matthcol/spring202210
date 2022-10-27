@@ -22,6 +22,7 @@ public class Movie {
     private Short duration;
     private ColorEnum color;
 
+    private String posterUri;
     private Set<String> genres;
 
     private Person director;
@@ -102,6 +103,14 @@ public class Movie {
 
     public void setColor(ColorEnum color) {
         this.color = color;
+    }
+
+    public String getPosterUri() {
+        return posterUri;
+    }
+
+    public void setPosterUri(String posterUri) {
+        this.posterUri = posterUri;
     }
 
     @ElementCollection
