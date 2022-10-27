@@ -3,11 +3,16 @@ package org.example.movieapi.service.impl;
 import org.example.movieapi.dto.MovieDetailDto;
 import org.example.movieapi.dto.MovieDto;
 import org.example.movieapi.entity.Movie;
+import org.example.movieapi.repository.IMovieRepository;
 import org.example.movieapi.service.IMovieService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -17,7 +22,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Transactional
+@Service
 public class MovieServiceImpl implements IMovieService {
+
+    @Autowired
+    IMovieRepository movieRepository;
+
+    @Autowired
+    ModelMapper modelMapper;
 
 //    public List<Movie> getAll() {
 ////        return Stream.of(
@@ -103,7 +116,8 @@ public class MovieServiceImpl implements IMovieService {
 
     @Override
     public Optional<MovieDetailDto> getById(int id) {
-        return Optional.empty();
+        return movieRepository.findById(id)
+            .map(me -> modelMapper.map(me, MovieDetailDto.class));
     }
 
     @Override

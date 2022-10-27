@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 
-@Transactional
+
 @RestController
 @RequestMapping("/api/movies")
 public class MovieController {
