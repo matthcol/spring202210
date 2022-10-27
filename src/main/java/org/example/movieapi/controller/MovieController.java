@@ -31,9 +31,11 @@ public class MovieController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieDetailDto> getById(@PathVariable int id) {
-//        var movie = new Movie("Top Gun: Maverick", (short) 2022);
-//        movie.setId(id);
-//        return movie;
+//        var movie = new MovieDetailDto();
+//        movie.setTitle("Top Gun: Maverick");
+//        movie.setYear((short) 2022);
+//        movie.setId(1);
+//        return ResponseEntity.ok(movie);
         return movieService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
