@@ -116,7 +116,9 @@ public class MovieServiceImpl implements IMovieService {
 
     @Override
     public List<MovieDto> getAll() {
-        return null;
+        return movieRepository.findAll().stream()
+                .map(me -> modelMapper.map(me, MovieDto.class))
+                .toList();
     }
 
     @Override
@@ -127,7 +129,7 @@ public class MovieServiceImpl implements IMovieService {
 
     @Override
     public Set<MovieDto> getByTitle(String title) {
-        return movieRepository.findByTitleIgnoringCase(title)
+        return movieRepository.findByTitleContainingIgnoringCase(title)
                 .map(me -> modelMapper.map(me, MovieDto.class))
                 .collect(Collectors.toSet());
     }

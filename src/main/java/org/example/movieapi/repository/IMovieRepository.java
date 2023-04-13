@@ -23,7 +23,7 @@ public interface IMovieRepository extends JpaRepository<Movie, Integer>, IMovieE
     Optional<Movie> findById(Integer id);
 
     @EntityGraph(value="Movie.simple")
-    Stream<Movie> findByTitleIgnoringCase(String title);
+    Stream<Movie> findByTitleContainingIgnoringCase(String title);
 
     // find by director with name endi
     // ng by (ignore cas)
